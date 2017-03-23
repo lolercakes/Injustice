@@ -1,8 +1,8 @@
 ;Injustice: The Game
 
 Age=18
-setformat, float, 8.2
-
+setformat, float, .2
+msgbox, This is a proof of concept pre-alpha written in AHK. It does not have many features enabled yet. In future releases I will add a better gui,more varried events, balance gameplay, have fully described and cited variables, and have a results page where you can compare your sim against others, . Thank you for contributing to this experiment. Please email comments and suggestions to theinjusticegame@gmail.com
 ;Enter Name
 
 gui, font,s10
@@ -21,12 +21,49 @@ gui, new,, Injustice: The Game
 gui, font,s10
 Gui, add, Text,,This simulation starts with your character %Name% just turning 18. Each turn will represent one year of life, ending when you die.
 Gui, add, text,y+1,The purpose of this simulation  is to demonstrate injustices based on variables beyond a persons control, with limited player interaction.
-Gui, add, text,y+1,This is not a happy simulation, outcomes are based on algorithms built using real statistics. (mostly from government studies)
+Gui, add, text,y+1,Outcomes are based on algorithms built using real statistics. (mostly from government studies)
 Gui, add, Button, x350 Default, Continue
 gui, show
 Return
 ButtonContinue:
 Gui, hide
+
+;sloppy workaround for guicontrol limitation+
+Race = aaaaaaaaaaaaa
+sex = aaaaaa
+preference = aaaaaaaaaaaaa
+hasDiploma = aaaaaaaaaaaaa
+age = 999
+healthnum = 99999
+happinessnum = 99999
+stressnum = 99999
+wealth = 9999999999
+stressabilitynum = 999999
+hasspouse = No
+hascar = No
+childcount = 0
+childtried = no
+;Building the main game page
+
+gui, new,, Injustice: The Game
+gui, font, s10
+gui, add, Text,+hwndnamehwnd vmyname, %Name%
+gui, add, Text,+hwndagehwnd vmyage, Age: %Age%
+gui, add, Text,+hwndracehwnd vmyrace, Race: %Race%
+gui, add, Text,+hwndsexhwnd vmysex, Sex: %Sex%
+gui, add, Text,+hwndpreferencehwnd vmypreference, Sexual Preference: %preference%
+Gui, add, text,+hwndspousehwnd vmyspouse, Spouse: %Hasspouse%
+Gui, add, text,+hwndchildhwnd vmychildren, Children: %childcount%
+gui, add, Text,+hwnddiplomahwnd vmydiploma, High School Diploma: %hasDiploma%
+Gui, add, text,+hwndhealthhwnd vmyhealth, Health: %Healthnum%/70
+gui, add, text,+hwndhappinesshwnd vmyhappiness, Happiness: %happinessnum%/100
+Gui, add, text,+hwndstresshwnd vmystress, Stress: %stressnum%/%stressabilitynum%
+Gui, add, text,+hwndwealthhwnd vmywealth, Wealth: $%wealth%
+Gui, add, text, y300, 
+Gui, add, button,vgetjob, Get job
+Gui, add, button, default, Progress
+Gui, add, button,, Actions
+gui, show 
 
 ;Char gen
 
@@ -48,11 +85,10 @@ eventwealth = 0
 diplomaincome := 0
 graduateincome := 0
 collegeyears :=0
-hasspouse = no
-childcount = 0
 wealthdivorcemod = 1
 housingsitch = renter
 yearshomeown = 0
+hasjob = no
 
 ;generated values
 Random, Racenum, 1, 4
@@ -210,13 +246,7 @@ else
 	random, wealth, 0010000.00, 0020000.00
 	random, stressnum, 000.00, 010.00	
 	}
-
-
-;Generate character
-
-Generate:
-Gui, Submit
-
+	
 ;story poverty
 if parentssocioeconomics=Poverty
 	{
@@ -238,7 +268,7 @@ if hasdiploma = Diploma
 	storydiploma=Working hard these last four years has paid off. You recently graduated from highschool and got a diploma. 
 	}
 else storydiploma= Lifes ups and downs have been insurmountable these last few years, leading you to drop out of highschool without getting a diploma.
-
+gui, submit
 ;Your story so far
 Gui, New,, Injustice: The Game
 gui, font, s15
@@ -248,35 +278,30 @@ Gui, Add, Text,w600 x15 y+20, (You are a %race% %sex%) Finally 18 years old! %st
 gui, add, button, default x285, Begin
 Gui, show
 Return
-Buttonbegin:
-gui, hide
 
-;Building the main game page after char gen	
-{
-gui, new,, Injustice: The Game
-gui, font, s10
-gui, add, Text,, %Name%
-gui, add, Text,, Race: %Race%
-gui, add, Text,, Sex: %Sex%
-gui, add, Text,, Sexual Preference: %preference%
-gui, add, Text,vmydiploma, High School Diploma: %hasDiploma%
-gui, add, Text,vmyage, Age: %Age%
-Gui, add, text,vmyhealth, Health: %Healthnum%/70
-gui, add, text,vmyhappiness, Happiness: %happinessnum%/100
-Gui, add, text,vmystress, Stress: %stressnum%/%stressabilitynum%
-Gui, add, text,vmywealth, Wealth: $%wealth%
-Gui, add, text, y300, 
-Gui, add, button,vgetjob, Get job
-Gui, add, button, default, Progress
-Gui, add, button,, Actions
-gui, show 
+
+Buttonbegin:
+gui, submit
+guicontrol,,%agehwnd%,Age:%Age%
+guicontrol,,%healthhwnd%,Health: %healthnum%/70
+guicontrol,,%stresshwnd%,Stress: %stressnum%/%stressabilitynum%
+guicontrol,,%happinesshwnd%,Happiness: %happinessnum%/100
+guicontrol,,%wealthhwnd%,Wealth: $%wealth%
+guicontrol,,%diplomahwnd%,High School Diploma: %hasdiploma%
+guicontrol,,%racehwnd%, Race: %Race%
+guicontrol,,%sexhwnd%, Sex: %Sex%
+guicontrol,,%preferencehwnd%, Sexual Preference: %preference%
+gui, submit, nohide
 Return
-}
+
 
 ButtonActions:
 Gui, new,, Actions
 gui, font, s10
-Gui, add, button,vgetjob, Get job
+if hascar = no
+	{
+	gui, add, button, vcarbut, Buy a car
+	}
 if hasdiploma = Diplomaless
 	{
 	gui, add, button, vdiploma, Get a GED
@@ -314,7 +339,19 @@ buttonbacktogame:
 buttoncancel:
 gui, submit
 return
-
+buttonbuyacar:
+gui, new
+gui, Add, text,,Would you like to  buy a car for $5000? (Without one you will get +1 stress and -1 happiness per turn)
+gui, add, button,, Buy
+Gui, add, button,default, Cancel
+return
+	Buttonbuy:
+	{
+	wealth -= 5000
+	hascar = yes
+	Msgbox, You purchased a car.
+	return
+	}
 
 buttongotocollege:
 if collegethisyear = yes
@@ -404,6 +441,7 @@ if childtried = no
 		stressnum += 20
 		happinessnum +=20
 		childcount +=1
+		Guicontrol,, %childhwnd%, Children: %childcount%
 		}
 	else
 		{
@@ -492,56 +530,88 @@ else
 
 
 ButtonGetjob:
-{
-random, getjobcheck, 1, 10
-if hasdiploma = Diploma ;Higher chance to get job with diploma
+if hasjob = no
 	{
-	getjobcheck += 1
-	}
-if felonycount >= 1
-	{
-	getjobcheck -= 2
-	}
-if parentssocioeconomics = Poverty
-	{
-	if getjobcheck > 4
+	random, getjobcheck, 1, 10
+	if hasdiploma = Diploma ;Higher chance to get job with diploma
 		{
-		random, baseincome, 20000, 26000
-		hasjob = yes
-		stressnum -= 5
-		happinessnum +=5
-		guicontrol, hide, getjob
-		income := incomecalculation(baseincome, diplomaincome, graduateincome, racialincomebias, sexincomebias)
-		Msgbox, You found a Job! It pays $%income% a year. (-5 stress)
-		parentssocioeconomics= nonpoverty
+		getjobcheck += 1
 		}
-	else
+	if felonycount >= 1
 		{
-		msgbox, You failed to find a job! This is very stressful. (stress +5)
-		stressnum += 05.00
+		getjobcheck -= 2
 		}
-	}
-else if parentssocioeconomics = Nonpoverty
-	
-	if getjobcheck > 1
+	if parentssocioeconomics = Poverty
 		{
-		random, baseincome, 20000, 28000
-		hasjob = yes
-		stressnum -= 5
-		happinessnum +=5
-		guicontrol, hide, getjob
-		income := incomecalculation(baseincome, diplomaincome, graduateincome, racialincomebias, sexincomebias)
-		Msgbox, You found a Job! It pays $%income% a year. (-5 stress)
+		if getjobcheck > 4
+			{
+			random, baseincome, 20000, 26000
+			hasjob = yes
+			stressnum -= 5
+			happinessnum +=5
+			income := incomecalculation(baseincome, diplomaincome, graduateincome, racialincomebias, sexincomebias)
+			Msgbox, You found a Job! It pays $%income% a year. (-5 stress)
+			parentssocioeconomics= nonpoverty
+			}
+		else
+			{
+			msgbox, You failed to find a job! This is very stressful. (stress +5)
+			stressnum += 05.00
+			}
 		}
-	else
-		{
-		msgbox, You failed to find a job! This is very stressful. (stress +5)
-		stressnum += 05.00
-		}
-return
-}
-
+	else if parentssocioeconomics = Nonpoverty
 		
+		if getjobcheck > 1
+			{
+			random, baseincome, 20000, 28000
+			hasjob = yes
+			stressnum -= 5
+			happinessnum +=5
+			income := incomecalculation(baseincome, diplomaincome, graduateincome, racialincomebias, sexincomebias)
+			Msgbox, You found a Job! It pays $%income% a year. (-5 stress)
+			return
+			}
+		else
+			{
+			msgbox, You failed to find a job! This is very stressful. (stress +5)
+			stressnum += 05.00
+			return
+			}
+	return
+	}
+else 
+	{
+	Gui, new,
+	Gui, add, text,, Try to get a better job? If you succeed you will find a job that pays 10 percent more. If you fail it will be stressful and you will be unhappy. (+10 stress, - 10 happiness)
+	Gui, add, button,, Get a new job
+	Gui, add, button, default, Cancel
+	Gui, show
+	return
+	}
+		buttongetanewjob:
+		{
+		random, newjobnum, 1, 100
+		if felonycount > 0
+			{
+			newjobnum -=30
+			}
+		if newjobnum >= 50
+			{
+			Msgbox, You successfully got a better job. Things are  starting to look up! (income +10 percent)
+			income *= 1.1
+			gui, submit
+			return
+			}
+		else
+			{
+			msgbox, You failed to get a new job! (+10 stress, - 10 happiness)
+			stressnum += 10
+			happinessnum -= 10
+			gui, submit
+			return
+			}
+		}
+	
 Buttonprogress:
 {
 Turn += 1
@@ -675,19 +745,11 @@ if eventchance = 1 ;bad
 				}
 			else 
 				{
-				msgbox, You were caught commiting a felony. After a lengthy court battle you were convicted of your crime. Off to prison you go, AFTER you pay your lawyer. This will have massive implications for your entire life. (Pay lawyer $7000, Chance to lose job, harder to get a new job, lower wages)
+				msgbox, You were caught commiting a felony. After a lengthy court battle you were convicted of your crime. Off to prison you go, AFTER you pay your lawyer. This will have massive implications for your entire life. (Pay lawyer $7000, lose job, harder to get a new job, lower wages)
 				eventwealth -=7000
 				felonycount +=1
-				if hasjob = yes
-					{
-					random, losejobchance, 1, 2
-					if losejobchance = 1
-						{
-						msgbox, You lost your job!
-						income = 0
-						hasjob = no
-						}
-					}
+				income = 0
+				hasjob = no
 				}
 			}
 		else if fellonychance <= 25
@@ -695,21 +757,13 @@ if eventchance = 1 ;bad
 			msgbox, You were caught committing a felony. Thankfully the lawyer you hired was able to get you off the hook. (Pay lawyer $7000)
 			eventwealth -=7000
 			}
-			else 
+		else 
 			{
-			msgbox, You were caught commiting a felony. After a lengthy court battle you were convicted of your crime. Off to prison you go, AFTER you pay your lawyer. This will have massive implications for your entire life. (Pay lawyer $7000, Chance to lose job, harder to get a new job, lower wages)
+			msgbox, You were caught commiting a felony. After a lengthy court battle you were convicted of your crime. Off to prison you go, AFTER you pay your lawyer. This will have massive implications for your entire life. (Pay lawyer $7000, lose job, harder to get a new job, lower wages)
 			eventwealth -=7000
 			felonycount +=1
-			random, losejobchance, 1, 2
-			if hasjob = yes
-				{
-				if losejobchance = 1
-					{
-					msgbox, You lost your job!
-					income = 0
-					hasjob = no
-					}
-				}
+			income = 0
+			hasjob = no
 			}
 		}
 	else if eventnum = 8
@@ -789,7 +843,7 @@ if stressnum < 0
 	{
 	stressnum = 00.00
 	}
-if (healthnum = 0 or Age = 99) ;If you are 99 or have 0hp you die
+if healthnum <= 0 ;If you are 99 or have 0hp you die
 	{
 	death = 1
 	}
@@ -869,13 +923,29 @@ collegeyearsleftfunction(a,b)
 
 
 gui, submit, nohide
+;sloppy alterations
+stressnum += %childcount%
+happinessnum -= %childcount%
 
-guicontrol,,myage,Age:%Age%
-guicontrol,,myhealth,Health: %healthnum%/70
-guicontrol,,mystress,Stress: %stressnum%/%stressabilitynum%
-guicontrol,,myhappiness,Happiness: %happinessnum%/100
-guicontrol,,mywealth,Wealth: $%wealth%
-guicontrol,,mydiploma,High School Diploma: %hasdiploma%
+if hascar = no
+	{
+	stressnum += 1
+	happinessnum -= 1
+	}
+
+
+
+guicontrol,,%agehwnd%,Age:%Age%
+guicontrol,,%healthhwnd%,Health: %healthnum%/70
+guicontrol,,%stresshwnd%,Stress: %stressnum%/%stressabilitynum%
+guicontrol,,%happinesshwnd%,Happiness: %happinessnum%/100
+guicontrol,,%wealthhwnd%,Wealth: $%wealth%
+guicontrol,,%diplomahwnd%,High School Diploma: %hasdiploma%
+guicontrol,,%racehwnd%, Race: %Race%
+guicontrol,,%sexhwnd%, Sex: %Sex%
+guicontrol,,%preferencehwnd%, Sexual Preference: %preference%
+Guicontrol,, %spousehwnd%, Spouse: %Hasspouse%
+Guicontrol,, %childhwnd%, Children: %childcount%
 if hasjob = no
 	{
 	Gui, add, button,, Getjob
@@ -884,12 +954,16 @@ collegethisyear = no
 triedspouse = no
 childtried = no
 wealthdivorcemod = 1
+if death = 1
+	{
+	Gui, Submit
+	Gui, new,, Death
+	Gui, add, text,, Your health dropped below 0! You are dead.
+	gui, show
+	}
 return
 
 
-
-
-Death:
 GuiClose: ;Makes the x close the window
 ExitApp
 
